@@ -22,6 +22,11 @@ jobs:
       - name: npm install
         run: npm install
 
+      - name: create .env file
+        run: |
+          touch .env
+          echo DB_TEST_URI=${{ secrets.DB_TEST_URI }} >> .env
+
       - name: lint
         run: npm run eslint
 
