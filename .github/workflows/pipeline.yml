@@ -3,9 +3,9 @@ name: Deployment pipeline
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:    
-    branches: [master]    
+    branches: [main]    
     types: [opened, synchronize]
 
 jobs:
@@ -33,6 +33,8 @@ jobs:
 
       - name: e2e tests
         uses: cypress-io/github-action@v2
+        env:
+          DB_TEST_URI: ${{ secrets.DB_TEST_URI }}
         with:
           command: npm run e2e
           start: npm run server:test
