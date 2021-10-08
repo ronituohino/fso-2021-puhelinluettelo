@@ -1,0 +1,97 @@
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:    
+    branches: [master]    
+    types: [opened, synchronize]
+
+jobs:
+  deployment_pipeline:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+
+      - name: npm install
+        run: npm install
+
+      - name: lint
+        run: npm run eslint
+
+      - name: build
+        run: npm run build
+        
+      - name: test
+        run: npm test
+
+      - name: e2e tests
+        uses: cypress-io/github-action@v2
+        with:
+          command: npm run e2e
+          start: npm run server:test
+          wait-on: http://localhost:3001
+
+      - name: check for deployment skip flag (#skip)
+        env:
+          SKIP: ${{ contains(join(toJson(github.event.commits.*.message)), '#skip') }}
+        run: echo "SKIP_DEPLOYMENT=$SKIP" >> $GITHUB_ENV
+
+      - name: deployment
+        if: ${{ github.event_name == 'push' && env.SKIP_DEPLOYMENT == 'false' }} 
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "fso-2021-puhelinluettelo"
+          heroku_email: ${{secrets.EMAIL}}
+          healthcheck: "https://fso-2021-puhelinluettelo.herokuapp.com/health"
+          checkstring: "ok"
+          rollbackonhealthcheckfailed: true
+
+      - name: bump version and push tag
+        if: ${{ github.event_name == 'push' && env.SKIP_DEPLOYMENT == 'false' }} 
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v5.6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: create a GitHub release
+        if: ${{ github.event_name == 'push' && env.SKIP_DEPLOYMENT == 'false' }} 
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
+
+      - name: ci success
+        if: ${{ github.event_name == 'push' && job.status == 'success' }}
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: author,took
+          custom_payload: |
+            {
+              attachments: [{
+                color: 'good',
+                text: `A new version deployed to https://fso-2021-puhelinluettelo.herokuapp.com/ by ${process.env.AS_AUTHOR} - build took ${process.env.AS_TOOK}`
+              }] 
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+          MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
+
+      - name: ci failure
+        if: ${{ always() && job.status != 'success' }}
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: author,took,repo,commit,message
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+          MATRIX_CONTEXT: ${{ toJson(matrix) }} # required

@@ -1,0 +1,64 @@
+{
+  "name": "fso-2021-puhelinluettelo",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/user-event": "^12.8.3",
+    "axios": "^0.22.0",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "mongoose": "^6.0.9",
+    "mongoose-unique-validator": "^3.0.0",
+    "morgan": "^1.10.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3",
+    "web-vitals": "^1.1.2"
+  },
+  "scripts": {
+    "prod": "cross-env NODE_ENV=production node index.js",
+    "build": "cross-env NODE_ENV=production react-scripts build",
+    "server:dev": "cross-env NODE_ENV=development node index.js",
+    "server:test": "cross-env NODE_ENV=test node index.js",
+    "start": "cross-env NODE_ENV=development react-scripts start",
+    "eslint": "eslint .",
+    "test": "cross-env CI=true NODE_ENV=test react-scripts test",
+    "cypress:open": "cypress open",
+    "e2e": "cypress run",
+    "eject": "react-scripts eject"
+  },
+  "proxy": "http://localhost:3001",
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.(js|jsx)$": "babel-jest"
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^11.2.7",
+    "cross-env": "^7.0.3",
+    "cypress": "^8.5.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-cypress": "^2.12.1",
+    "eslint-plugin-jest": "^24.5.2"
+  }
+}

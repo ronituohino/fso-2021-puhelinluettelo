@@ -1,0 +1,8 @@
+build
+node_modules
+.eslintrc.js
+
+cypress/fixtures
+cypress/plugins
+cypress/support
+cypress/videos
