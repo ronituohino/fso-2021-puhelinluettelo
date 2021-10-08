@@ -22,11 +22,6 @@ jobs:
       - name: npm install
         run: npm install
 
-      - name: create .env file
-        run: |
-          touch .env
-          echo DB_TEST_URI=${{ secrets.DB_TEST_URI }} >> .env
-
       - name: lint
         run: npm run eslint
 
@@ -37,6 +32,9 @@ jobs:
         run: npm test
 
       - name: e2e tests
+        run: |
+          touch .env
+          echo DB_TEST_URI=${{ secrets.DB_TEST_URI }} >> .env
         uses: cypress-io/github-action@v2
         with:
           command: npm run e2e
