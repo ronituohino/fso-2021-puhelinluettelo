@@ -19,6 +19,11 @@ jobs:
         with:
           node-version: '12.x'
 
+      - name: create .env file
+        run: |
+          touch .env
+          echo DB_TEST_URI=${{ secrets.DB_TEST_URI }} >> .env
+
       - name: npm install
         run: npm install
 
@@ -31,10 +36,12 @@ jobs:
       - name: test
         run: npm test
 
-      - name: e2e tests
+      - name: logs
         run: |
-          touch .env
-          echo DB_TEST_URI=${{ secrets.DB_TEST_URI }} >> .env
+          echo ls -a
+          echo cat .env
+
+      - name: e2e tests
         uses: cypress-io/github-action@v2
         with:
           command: npm run e2e
