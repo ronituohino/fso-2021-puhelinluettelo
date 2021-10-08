@@ -39,7 +39,7 @@ jobs:
       - name: logs
         run: |
           echo ls -a
-          echo cat .env
+          cat .env
 
       - name: e2e tests
         uses: cypress-io/github-action@v2
